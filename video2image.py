@@ -38,7 +38,7 @@ def main():
                         help='Where to save the results. (Default: ./<video_name>)')
     args = parser.parse_args()
 
-    # The video is not specified -> Exception
+    # The target is not specified -> Exception
     if args.video_dir is None:
         raise Exception("The target is not specified.")
 
