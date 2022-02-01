@@ -7,7 +7,7 @@ import argparse as arg
 def convert(video_dir, outpath_p):
     for f in os.listdir(video_dir):
         target_path = os.path.join(video_dir, f)
-        print("Conversion of video. Target: {} ...".format(target_path), end="")
+        print("Conversion of video. target: {} ...".format(target_path), end="")
 
         video = cv2.VideoCapture(target_path) # Load the video
         if video.isOpened():
@@ -20,14 +20,14 @@ def convert(video_dir, outpath_p):
                 ret, frame = video.read() # Get the frame
                 if ret:
                     cv2.imwrite(os.path.join(outpath, str(num)+"_frame.jpg"), frame) # Save the frame
-                    print("\rConversion of video. Target: {} ...{}".format(f, num), end="")
+                    print("\rConversion of video. target: {} ...{}".format(f, num), end="")
                     num += 1
                 else:
                     break
         else:
             raise Exception("Failed to load the video.")
         video.release()
-        print("\rConversion of video. Target: {} ...Done!".format(f))
+        print("\rConversion of video. target: {} ...Done!".format(f))
 
 def main():
     # Command line options
