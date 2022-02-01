@@ -6,9 +6,10 @@ import argparse as arg
 # Convert video to image
 def convert(video_dir, outpath_p):
     for f in os.listdir(video_dir):
-        print("Conversion of video. Target: {} ...".format(f), end="")
+        target_path = os.path.join(video_dir, f)
+        print("Conversion of video. Target: {} ...".format(target_path), end="")
 
-        video = cv2.VideoCapture(os.path.join(video_dir, f)) # Load the video
+        video = cv2.VideoCapture(target_path) # Load the video
         if video.isOpened():
             # Create a frame directory
             outpath = os.path.join(outpath_p, f[:-4])
