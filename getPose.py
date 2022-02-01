@@ -48,6 +48,16 @@ class getPose():
 
         return frame_list
 
+    # Saving the results
+    def saveResult(self, data, i, outpath):
+        # Axis deletion
+        plt.axis('tight')
+        plt.axis('off')
+        data = data.get_figure()
+        data.subplots_adjust(left=0, right=1, bottom=0, top=1) # Margin removal
+        data.savefig(os.path.join(outpath, str(i)+".png"))
+        plt.close()
+
     def run(self, frame_list, outpath):
         os.makedirs(outpath, exist_ok=True)
 
@@ -71,8 +81,7 @@ class getPose():
             plt.show()
             """
 
-            _bg_result = utils.viz.plot_keypoints(bg, pred_coords, confidence,
+            bg_result = utils.viz.plot_keypoints(bg, pred_coords, confidence,
                                         class_IDs, bounding_boxs, scores,
-                                        box_thresh=0.5, keypoint_thresh=0.2)
-            bg_result = _bg_result.get_figure()
-            bg_result.savefig(os.path.join(outpath, str(i)+".png"))
+                                        box_thresh=1, keypoint_thresh=0.2)
+            self.saveResult(bg_result, i, outpath) # Saving the results
