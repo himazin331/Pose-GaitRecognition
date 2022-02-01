@@ -1,21 +1,34 @@
 import tensorflow as tf
-import tensorflow.keras.layers as L
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from person_identification_model import PersonIdentificationModel
 
+import numpy as np
+
 class personIden():
     def __init__(self, input_shape):
         self.person_iden = PersonIdentificationModel(input_shape)
-        input_shape = (None, input_shape[0], input_shape[1], input_shape[2])
         self.person_iden.build(input_shape=input_shape)
         self.person_iden.compile(optimizer=tf.keras.optimizers.Adam(),
-                                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                                loss=tf.keras.losses.BinaryCrossentropy(),
                                 metrics=['accuracy'])
 
     def run(self, dataA, dataB):
-        self.person_iden.fit(dataA, 0, batch_size=16, epochs=10)
+   
+        dataA = tf.convert_to_tensor(dataA, dtype=tf.float32)
+#!============================================= TEST =============================================
 
-        self.person_iden(dataB)
+#!============================================= TEST =============================================
+        dataB = tf.convert_to_tensor(dataB, dtype=tf.float32)
+        label = tf.convert_to_tensor([0]*len(dataA)) 
+
+        for i in range(10):
+            loss = self.person_iden.train_on_batch(dataA, label)
+            print("{}: loss {}".format(i, loss))
+
+        print(self.person_iden.metrics_names)
+
+        r = self.person_iden.predict(dataB)
+        print("result:", r)
