@@ -3,6 +3,8 @@ from gluoncv import data, model_zoo, utils
 from gluoncv.data.transforms.pose import detector_to_simple_pose, heatmap_to_coord
 
 import os
+import argparse as arg
+
 from natsort import natsorted
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,6 +39,7 @@ class getPose():
 
     # Data preprocessing
     def dataPrep(self, framedir_path):
+        print("target: {} ...".format(framedir_path), end="")
         frame_list = []
         for frame_name in natsorted(os.listdir(framedir_path)):
             # Image loading and normalization
@@ -45,6 +48,7 @@ class getPose():
             # frame : for display (Numpy n-D array)
             x, frame = data.transforms.presets.ssd.load_test(os.path.join(framedir_path, frame_name), short=512)
             frame_list.append((x, frame))
+        print("Done")
 
         return frame_list
 
@@ -62,7 +66,7 @@ class getPose():
         os.makedirs(outpath, exist_ok=True)
 
         for i, data in enumerate(frame_list):
-            print("{0} / {1} frames".format(i+1, len(frame_list)), end="\n")
+            print("\r{0} / {1} frames ...".format(i+1, len(frame_list)), end="")
             x, frame = data
 
             # Person detection
@@ -85,3 +89,4 @@ class getPose():
                                         class_IDs, bounding_boxs, scores,
                                         box_thresh=1, keypoint_thresh=0.2)
             self.saveResult(bg_result, i, outpath) # Saving the results
+        print("Done")
