@@ -7,36 +7,50 @@ from personIden import personIden
 from natsort import natsorted
 
 import cv2
+import numpy as np
 
-def read_file(dir_path):
-    file_list = []
+def read_joint_images(dir_path):
+    joint_list = []
     for f in natsorted(os.listdir(dir_path)):
         f = cv2.imread(os.path.join(dir_path, f))
         f = cv2.cvtColor(f, cv2.COLOR_BGR2RGB)
-        file_list.append(f)
-    return file_list
+        f = f / 255.0
+        joint_list.append(f)
+    return joint_list
 
 def runGaitRecog(frameA_path, frameB_path, outpath):
     gp = getPose()
 
     # Read video images
+    """ print("Start reading the video image.")
     frameA_list = gp.dataPrep(frameA_path)
     frameB_list = gp.dataPrep(frameB_path)
+    print("Reading of the video image is complete.\n")
 
     # Person detection / Pose Estimation
+    print("Start pose estimation.")
     jointsA_path = os.path.join(outpath, "A")
     jointsB_path = os.path.join(outpath, "B")
+    print("target: Video images 1")
     gp.run(frameA_list, jointsA_path)
+    print("target: Video images 2")
     gp.run(frameB_list, jointsB_path)
+    print("Pose estimation complete.\n") """
 
+    jointsA_path = "./train/_pose/Nakamura_2_pose"
+    jointsB_path = "./predict/_pose/Nakamura_1_pose"
+    jointsFalse_path = "./data_set/false"
+
+    print("Start person identification.")
     # Read joint images
-    jointsA_list = read_file(jointsA_path)
-    jointsB_list = read_file(jointsB_path)
+    jointsA_list = read_joint_images(jointsA_path)
+    jointsB_list = read_joint_images(jointsB_path)
+    jointsFalse_list = read_joint_images(jointsFalse_path)
 
     # Person Identication
     input_shape = jointsA_list[0].shape
-    personiden = personIden((None, input_shape[0], input_shape[1], input_shape[2]))
-    personiden.run(jointsA_list, jointsB_list)
+    personiden = personIden((None, input_shape[0], input_shape[1], 3))
+    personiden.run(jointsA_list, jointsB_list, jointsFalse_list)
 
     return False
 
