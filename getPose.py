@@ -76,7 +76,6 @@ class getPose():
             if pred_coords is None:
                 continue
 
-            bg = np.zeros(frame.shape)
             """             
             plt.rcParams['figure.figsize'] = (15.0, 15.0)
             real_result = utils.viz.plot_keypoints(frame, pred_coords, confidence,
@@ -85,6 +84,7 @@ class getPose():
             plt.show()
             """
 
+            bg = np.zeros(frame.shape)
             bg_result = utils.viz.plot_keypoints(bg, pred_coords, confidence,
                                         class_IDs, bounding_boxs, scores,
                                         box_thresh=1, keypoint_thresh=0.2)
