@@ -51,7 +51,7 @@ def main():
 
     print("Start conversion")
     convert(args.video_dir, args.out_path)
-    print("Successfully!")
+    print("Complete.")
 
 if __name__ == "__main__":
     main()
