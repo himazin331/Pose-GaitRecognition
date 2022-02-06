@@ -20,14 +20,14 @@ def convert(video_dir, outpath_p):
                 ret, frame = video.read() # Get the frame
                 if ret:
                     cv2.imwrite(os.path.join(outpath, str(num)+"_frame.jpg"), frame) # Save the frame
-                    print("\rConversion of video. target: {} ...{}".format(f, num), end="")
+                    print("\rConversion of video. target: {} ...{}".format(target_path, num), end="")
                     num += 1
                 else:
                     break
         else:
             raise Exception("Failed to load the video.")
         video.release()
-        print("\rConversion of video. target: {} ...Done!".format(f))
+        print("\rConversion of video. target: {} ...Done!".format(target_path))
 
 def main():
     # Command line options
