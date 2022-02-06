@@ -1,7 +1,7 @@
 import os
 import argparse as arg
 
-from getPoseTEST import getPose
+from getPose import getPose
 
 def runPoseEst(frame_dir, outpath_p):
     gp = getPose()
@@ -21,7 +21,7 @@ def runPoseEst(frame_dir, outpath_p):
 
 def main():
     # Command line options
-    """ parser = arg.ArgumentParser(description="Getting Pose-Estimation result")
+    parser = arg.ArgumentParser(description="Getting Pose-Estimation result")
     parser.add_argument('--frame_dir', '-d', type=str, default=None,
                         help='Specify the directory containing the frame image of the video. (Required)')
     parser.add_argument('--out_path', '-o', type=str, default=os.path.dirname(os.path.abspath(__file__)),
@@ -30,15 +30,7 @@ def main():
 
     # The target is not specified -> Exception
     if args.frame_dir is None:
-        raise Exception("The target is not specified.") """
-
-
-    parser = arg.ArgumentParser(description="Getting Pose-Estimation result")
-    parser.add_argument('--frame_dir', '-d', type=str, default="./ng_correct_in/",
-                        help='Specify the directory containing the frame image of the video. (Required)')
-    parser.add_argument('--out_path', '-o', type=str, default="./ng_correct_out/",
-                        help='Where to save the results. (Default: ./<video_name>_pose)')
-    args = parser.parse_args()
+        raise Exception("The target is not specified.")
 
     # Setting information
     print("=== Setting information ===")

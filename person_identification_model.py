@@ -15,7 +15,7 @@ class PersonIdentificationModel(tf.keras.Model):
         self.fit = L.Flatten()
 
         self.dense = L.Dense(1024, activation='relu')
-        self.op_dense = L.Dense(2, activation='softmax')
+        self.op_dense = L.Dense(1, activation='sigmoid')
 
     def call(self, x):
         h1 = self.mp(self.conv1(x))
