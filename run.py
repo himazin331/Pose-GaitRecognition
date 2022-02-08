@@ -1,16 +1,12 @@
 import os
 import argparse as arg
 
-from getPose import getPose
 from personIden import personIden
 
 from natsort import natsorted
 
 import cv2
-import numpy as np
-
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 def read_joint_images(dir_path):
     joint_list = []
