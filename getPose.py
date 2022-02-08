@@ -3,8 +3,6 @@ from gluoncv import data, model_zoo, utils
 from gluoncv.data.transforms.pose import detector_to_simple_pose, heatmap_to_coord
 
 import os
-import argparse as arg
-
 from natsort import natsorted
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,6 +62,8 @@ class getPose():
 
         return frame_list
 
+    #! [incomplete]
+    #! If the future data is abnormal data to be corrected, no correction effect or change normal to abnormal.
     def dataCorrect(self):
         # Calculate the average value of the coordinates
         for j in range(self.window_ba_len*2+1):
