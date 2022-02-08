@@ -39,14 +39,15 @@ class getPose():
         poseEst_model = 'simple_pose_resnet152_v1d' # Pose Est Estimation Model
         self.poseEst = PoseEstimation(poseEst_model)
 
-        self.ob_ba_num = 1
-        self.ob_total_num = 9
+        self.window_ba_len = 1      # Window-length before and after the target
+        self.window_entire_len = 9  # Entire window-length
 
-        self.ob_data_deque = deque([])
-        self.ob_avg_xydata = np.zeros((17, 2))
+        self.ob_data_queue = deque([])  # Observation data queue
+        self.ob_avg_xydata = np.zeros((17, 2))  # Average value of x,y coordinates
 
-        self.under_threshold = 0.0
-        self.over_threshold = 0.0
+        self.lower_threshold = 0.0  # Lower threshold
+        self.upper_threshold = 0.0   # Upper threshold
+        # The x and y coordinates must be within this threshold interval.
 
     # Data preprocessing
     def dataPrep(self, framedir_path):
@@ -64,23 +65,38 @@ class getPose():
         return frame_list
 
     def dataCorrect(self):
-        pass
+        # Calculate the average value of the coordinates
+        for j in range(self.window_ba_len*2+1):
+            if j == self.window_ba_len: # The correction target is not included.
+                continue
+            self.ob_avg_xydata += self.ob_data_queue[j][0][0].asnumpy()
+        self.ob_avg_xydata /= self.window_ba_len*2
+
+        std = np.sqrt(((self.ob_avg_xydata-(self.ob_avg_xydata/(self.window_ba_len*2)))**2.0)/2.0) # Standard deviation
+        self.lower_threshold = self.ob_avg_xydata - std
+        self.upper_threshold = self.ob_avg_xydata + std
+
+        # Correction process
+        for k, v in enumerate(self.ob_data_queue[self.window_ba_len][0][0].asnumpy()):
+            x, y = v
+            if x < self.lower_threshold[k][0] or x > self.upper_threshold[k][0]:
+                self.ob_data_queue[self.window_ba_len][0][0][k][0] = self.ob_avg_xydata[k][0]
+            if y < self.lower_threshold[k][1] or y > self.upper_threshold[k][1]:
+                self.ob_data_queue[self.window_ba_len][0][0][k][1] = self.ob_avg_xydata[k][1]
 
     # Saving the results
     def saveResult(self, data, i, outpath):
-        # Axis deletion
-        
-        plt.axis('off')
-        plt.style.use('dark_background')
+        plt.axis('off') # Axis deletion
+        plt.style.use('dark_background') # Black background
         data = data.get_figure()
         data.subplots_adjust(left=0, right=1, bottom=0, top=1) # Margin removal
         data.savefig(os.path.join(outpath, str(i)+".png"), bbox_inches='tight', pad_inches=0)
         plt.close()
 
     def run(self, frame_list, outpath):
-        os.makedirs(outpath, exist_ok=True)
-        
+        os.makedirs(outpath, exist_ok=True) # Create a save location
         ob_cnt = 2
+
         for i, data in enumerate(frame_list):
             print("\r{0} / {1} frames ...".format(i+1, len(frame_list)), end="")
             x, frame = data
@@ -110,42 +126,27 @@ class getPose():
 
             results_data = [pred_coords, confidence, class_IDs, bounding_boxs, scores]
 
-            self.ob_data_deque.append(results_data)
-
-            if len(self.ob_data_deque) == 1:
+            self.ob_data_queue.append(results_data) # Observation data queue
+            if len(self.ob_data_queue) == 1: # The first data will be output.
+                # Saving the results
                 result = utils.viz.plot_keypoints(bg, *results_data, box_thresh=1, keypoint_thresh=0)
-                self.saveResult(result, i+1, outpath) # Saving the results
+                self.saveResult(result, i+1, outpath)
+                continue
 
-            if len(self.ob_data_deque) == self.ob_ba_num*2+1:
-                
-                for j in range(self.ob_ba_num*2+1):
-                    if j == self.ob_ba_num:
-                        continue
-                    self.ob_avg_xydata += self.ob_data_deque[j][0][0].asnumpy()
-                self.ob_avg_xydata /= self.ob_ba_num*2
+            result = utils.viz.plot_keypoints(bg, *results_data, box_thresh=1, keypoint_thresh=0)
+            self.saveResult(result, i+1, outpath)
 
-                std = np.sqrt(((self.ob_avg_xydata-(self.ob_avg_xydata/(self.ob_ba_num*2)))**2.0)/2.0)
+            if len(self.ob_data_queue) == self.window_ba_len*2+1:
+                self.dataCorrect() # Data correction
 
-                self.under_threshold = self.ob_avg_xydata - std
-                self.over_threshold = self.ob_avg_xydata + std
+                # Saving the results
+                result = utils.viz.plot_keypoints(bg, *self.ob_data_queue[self.window_ba_len], box_thresh=1, keypoint_thresh=0)
+                self.saveResult(result, ob_cnt, outpath)
 
-
-                for k, v in enumerate(self.ob_data_deque[self.ob_ba_num][0][0].asnumpy()):
-                    x, y = v
-                    if x < self.under_threshold[k][0] or x > self.over_threshold[k][0]:
-                        self.ob_data_deque[self.ob_ba_num][0][0][k][0] = self.ob_avg_xydata[k][0]
-
-                    if y < self.under_threshold[k][1] or y > self.over_threshold[k][1]:
-                        self.ob_data_deque[self.ob_ba_num][0][0][k][1] = self.ob_avg_xydata[k][1]
-
-                result = utils.viz.plot_keypoints(bg, *self.ob_data_deque[self.ob_ba_num], box_thresh=1, keypoint_thresh=0)
-                self.saveResult(result, ob_cnt, outpath) # Saving the results
-
-                if len(self.ob_data_deque) == self.ob_total_num:
-                    self.ob_data_deque.popleft()
-                elif len(self.ob_data_deque) < self.ob_total_num:
-                    self.ob_ba_num += 1
-
+                # 9 == 9 : dequeue
+                if len(self.ob_data_queue) == self.window_entire_len:
+                    self.ob_data_queue.popleft()
+                elif len(self.ob_data_queue) < self.window_entire_len:
+                    self.window_ba_len += 1
                 ob_cnt += 1
-
         print("Done")

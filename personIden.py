@@ -6,26 +6,26 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from person_identification_model import PersonIdentificationModel
 
 import numpy as np
-
 import matplotlib.pyplot as plt
 
 class personIden():
     def __init__(self, input_shape):
         self.person_iden = PersonIdentificationModel(input_shape)
+
         self.person_iden.build(input_shape=input_shape)
         self.person_iden.compile(optimizer=tf.keras.optimizers.Adam(),
-                                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                                loss=tf.keras.losses.BinaryCrossentropy(),
                                 metrics=['accuracy'])
 
     def run(self, dataA, dataB, dataFalse):
-        batch_size = 10
+        batch_size = 16
 
-        #! 処理が激遅いからなんとかしたい
         dataA = tf.convert_to_tensor(dataA, dtype=np.float32)
         dataB = tf.convert_to_tensor(dataB, dtype=np.float32)
         dataFalse = tf.convert_to_tensor(dataFalse, dtype=np.float32)
 
-        for i in range(25):
+
+        for i in range(40):
             F_idx = np.random.randint(0, dataFalse.shape[0], batch_size)
             A_idx = np.random.randint(0, dataA.shape[0], batch_size)
 
@@ -34,5 +34,5 @@ class personIden():
             print("{}: true_loss {}, false_loss {}".format(i, true_loss, false_loss))
 
         r_list = self.person_iden.predict(dataB)
-        r = [np.argmax(r) for r in r_list]
-        print("result:", r)
+        r_avg = np.sum(r_list) / len(r_list)
+        print("result: {:.2f} %".format(r_avg*100))
