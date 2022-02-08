@@ -17,7 +17,6 @@ def runPoseEst(frame_dir, outpath_p):
         print("Start pose estimation.")
         outpath = os.path.join(outpath_p, f+"_pose")
         gp.run(frame_list, outpath)
-    return False
 
 def main():
     # Command line options
@@ -38,10 +37,7 @@ def main():
     print("# Save location: {}/<video_name>_pose".format(args.out_path))
     print("===========================\n")
 
-
-    err = runPoseEst(args.frame_dir, args.out_path)
-    if err:
-        raise Exception(err)
+    runPoseEst(args.frame_dir, args.out_path)
     print("Complete.\n")
 
 if __name__ == "__main__":
