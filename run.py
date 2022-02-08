@@ -34,12 +34,19 @@ def main():
     # Command line options
     parser = arg.ArgumentParser(description="Gait Recognition with Pose-Estimation model")
     parser.add_argument('--joint_a', '-ja', type=str, default=None,
-                        help='Directory containing the joint images of person 1. (Required)')
+                        help='Directory containing the joint images of person1. (Required)')
     parser.add_argument('--joint_b', '-jb', type=str, default=None,
-                        help='Directory containing the joint images of person 2. (Required)')
+                        help='Directory containing the joint images of person2. (Required)')
     parser.add_argument('--joint_f', '-jf', type=str, default=None,
                         help='Directory containing the joint images of false. (Required)')
     args = parser.parse_args()
+
+    if args.joint_a is None:
+        raise Exception("The person1 joint image is not specified.")
+    if args.joint_b is None:
+        raise Exception("The person2 joint image is not specified.")
+    if args.joint_f is None:
+        raise Exception("The false joint image is not specified.")
 
     # Setting information
     print("=== Setting information ===")
