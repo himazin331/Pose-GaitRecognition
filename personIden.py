@@ -3,7 +3,7 @@ import tensorflow as tf
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-from person_identification_model import PersonIdentificationModel
+from model.person_identification_model import PersonIdentificationModel
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,15 +17,12 @@ class personIden():
                                 loss=tf.keras.losses.BinaryCrossentropy(),
                                 metrics=['accuracy'])
 
-    def run(self, dataA, dataB, dataFalse):
-        batch_size = 16
-
+    def run(self, dataA, dataB, dataFalse, epochs, batch_size):
         dataA = tf.convert_to_tensor(dataA, dtype=np.float32)
         dataB = tf.convert_to_tensor(dataB, dtype=np.float32)
         dataFalse = tf.convert_to_tensor(dataFalse, dtype=np.float32)
 
-
-        for i in range(40):
+        for i in range(epochs):
             F_idx = np.random.randint(0, dataFalse.shape[0], batch_size)
             A_idx = np.random.randint(0, dataA.shape[0], batch_size)
 
